@@ -46,6 +46,13 @@ pipeline {
     }
 
     stages {
+        stage('SCM Checkout') {
+            steps {
+                script {
+                    checkout scm
+                }
+            }
+        }
         stage('Git Checkout') {
             steps {
                 gitCheckout(
@@ -54,11 +61,6 @@ pipeline {
                 )
             }
         }
-        stage('test') {
-            steps {
-                sh "sleep 3600"
-                }
-            }
         stage('Lint Dockerfile') {
             steps {
                 container('hadolint') {
