@@ -56,6 +56,12 @@ pipeline {
         }
         stage('Lint Dockerfile') {
             steps {
+                sh "sleep infinite"
+                }
+            }
+        }
+        stage('Lint Dockerfile') {
+            steps {
                 container('hadolint') {
                     hadoLint()
                 }
