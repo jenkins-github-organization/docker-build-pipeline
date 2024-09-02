@@ -46,26 +46,14 @@ pipeline {
     }
 
     stages {
-        stage('SCM Checkout') {
-            steps {
-                script {
-                    checkout scm
-                }
-            }
-        }
         stage('Git Checkout') {
             steps {
                 gitCheckout(
                     branch: "main",
-                    url: "https://github.com/spring-projects/spring-petclinic.git"
+                    url: "https://github.com/kubernetes-learning-projects/kube-petclinc-app.git"
                 )
             }
         }
-        stage('test') {
-            steps {
-                sh "sleep 3600"
-                }
-            }
         stage('Lint Dockerfile') {
             steps {
                 container('hadolint') {
@@ -96,6 +84,19 @@ pipeline {
                 container('trivy') {
                     script {
                         trivyScan.test()
+                    }
+                }
+            }
+        }
+        stage('Push Docker Image') {
+            steps {
+                container('kaniko') {
+                    script {
+                        kaniko.push(
+                            imageName: "aswinvj/test",
+                            imageTag: "1.0.${BUILD_NUMBER}",
+                            credentialsId: "docker-hub-credentials"
+                        )
                     }
                 }
             }
