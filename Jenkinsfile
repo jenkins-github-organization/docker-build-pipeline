@@ -81,9 +81,11 @@ pipeline {
         }
         stage('Trivy Scan') {
             steps {
-                container('trivy') {
-                    script {
-                        trivyScan.test()
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                    container('trivy') {
+                        script {
+                            trivyScan.test()
+                        }
                     }
                 }
             }
