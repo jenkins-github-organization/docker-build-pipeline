@@ -56,7 +56,7 @@ pipeline {
         }
         stage('test') {
             steps {
-                sh "sleep infinite"
+                sh "sleep 3600"
                 }
             }
         stage('Lint Dockerfile') {
