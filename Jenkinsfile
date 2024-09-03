@@ -48,6 +48,14 @@ pipeline {
                 }
         }
         stage('Push Docker Image') {
+            when {
+                allOf {
+                    branch 'main'
+                    not {
+                        changeRequest()
+                    }
+                }
+            }
             steps {
                 container('kaniko') {
                     script {
