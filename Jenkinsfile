@@ -1,44 +1,8 @@
 @Library('shared-library@main') _
 pipeline {
     agent {
-        kubernetes {
-            yaml '''
-                apiVersion: v1
-                kind: Pod
-                spec:
-                  containers:
-                  - name: maven
-                    image: maven:3.8.4-openjdk-17
-                    command:
-                    - cat
-                    tty: true
-                    volumeMounts:
-                    - name: maven-cache
-                      mountPath: /root/.m2
-                  - name: kaniko
-                    image: gcr.io/kaniko-project/executor:debug
-                    command:
-                    - /busybox/sh
-                    tty: true
-                  - name: hadolint
-                    image: hadolint/hadolint:latest-debian
-                    command:
-                    - sleep
-                    args:
-                    - "3600"
-                  - name: trivy
-                    image: aquasec/trivy
-                    command:
-                    - sleep
-                    args:
-                    - "3600"
-                  volumes:
-                  - name: maven-cache
-                    hostPath:
-                        path: /home/jenkins/cache
-            '''
+        label 'buildtools'
         }
-    }
 
     stages {
         stage('Git Checkout') {
@@ -76,14 +40,12 @@ pipeline {
         }
         stage('Trivy Scan') {
             steps {
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                     container('trivy') {
                         script {
-                            trivyScan.test()
+                            trivyScan.kaniko()
                         }
                     }
                 }
-            }
         }
         stage('Push Docker Image') {
             steps {
