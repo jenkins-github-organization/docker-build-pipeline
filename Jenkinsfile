@@ -18,11 +18,8 @@ pipeline {
                   - name: kaniko
                     image: gcr.io/kaniko-project/executor:debug
                     command:
-                    - /busybox/cat
+                    - /busybox/sh
                     tty: true
-                    volumeMounts:
-                    - name: docker-config
-                    mountPath: /kaniko/.docker
                   - name: hadolint
                     image: hadolint/hadolint:latest-debian
                     command:
@@ -39,15 +36,8 @@ pipeline {
                   - name: maven-cache
                     hostPath:
                         path: /home/jenkins/cache
-                  - name: docker-config
-                    emptyDir: {}
             '''
         }
-    }
-
-    environment {
-        DOCKER_HUB_REPO = "test"
-        IMAGE_TAG = "1.0.${BUILD_NUMBER}"
     }
 
     stages {
