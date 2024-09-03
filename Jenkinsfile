@@ -20,6 +20,9 @@ pipeline {
                     command:
                     - /busybox/cat
                     tty: true
+                    volumeMounts:
+                    - name: docker-config
+                    mountPath: /kaniko/.docker
                   - name: hadolint
                     image: hadolint/hadolint:latest-debian
                     command:
@@ -36,6 +39,8 @@ pipeline {
                   - name: maven-cache
                     hostPath:
                         path: /home/jenkins/cache
+                  - name: docker-config
+                    emptyDir: {}
             '''
         }
     }
@@ -94,11 +99,7 @@ pipeline {
             steps {
                 container('kaniko') {
                     script {
-                        kaniko.push(
-                            imageName: "aswinvj/test",
-                            imageTag: "1.0.${BUILD_NUMBER}",
-                            credentialsId: "docker-hub-credentials"
-                        )
+                        kaniko.push('aswinvj/test', "1.0.${BUILD_NUMBER}", 'docker-hub-credentials')
                     }
                 }
             }
@@ -108,9 +109,7 @@ pipeline {
     post {
         always {
             script {
-                def reportPath = "trivy-report.html"
-                def recipient = "aswin@crunchops.com"
-                trivyNotification(reportPath, recipient)
+                trivyNotification('trivy-report.html', 'aswin@crunchops.com')
             }
         }
     }
